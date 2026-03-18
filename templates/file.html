@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="file" class="page">
+    <div class="card">
+        <h1 class="card-title">📁 File Security Analyzer</h1>
+        
+        <div class="form-group">
+            <label>Upload File for Security Analysis</label>
+            <input type="file" id="fileInput">
+        </div>
+        
+        <button onclick="analyzeFile()">Analyze File</button>
+        
+        <div id="fileLoading" class="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 1rem;">Analyzing file security...</p>
+        </div>
+        
+        <div id="fileResults" class="results">
+            <h3 style="color: #667eea; margin-bottom: 1rem;">Analysis Results</h3>
+            <div id="fileContent"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function analyzeFile() {
+    const fileInput = document.getElementById('fileInput');
+    
+    if (!fileInput.files.length) {
+        alert('Please select a file');
+        return;
+    }
+    
+    const loading = document.getElementById('fileLoading');
+    const results = document.getElementById('fileResults');
+    const content = document.getElementById('fileContent');
+    
+    showLoading(loading);
+    showResults(results, false);
+    
+    try {
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        
+        const response = await fetch('/api/analyze-file', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            const analysis = data.data;
+            
+            let html = '';
+            html += '<div class="result-item"><span class="result-label">Filename</span><span class="result-value">' + analysis.filename + '</span></div>';
+            html += '<div class="result-item"><span class="result-label">File Extension</span><span class="result-value">' + analysis.extension + '</span></div>';
+            
+            const dangerStatus = analysis.is_dangerous ? '<span class="status-danger">✗ Dangerous</span>' : '<span class="status-success">✔ Safe</span>';
+            html += '<div class="result-item"><span class="result-label">Extension Safety</span><span class="result-value">' + dangerStatus + '</span></div>';
+            
+            html += '<div class="result-item"><span class="result-label">File Permissions</span><span class="result-value">' + analysis.permissions + '</span></div>';
+            html += '<div class="result-item"><span class="result-label">Status</span><span class="result-value">' + analysis.status + '</span></div>';
+            html += '<div class="result-item"><span class="result-label">SHA-256 Hash</span><span class="result-value" style="font-size: 0.85em;">' + analysis.hash_sha256 + '</span></div>';
+            
+            content.innerHTML = html;
+            showResults(results, true);
+        } else {
+            content.innerHTML = '<div class="alert alert-danger">Error: ' + data.message + '</div>';
+            showResults(results, true);
+        }
+    } catch (error) {
+        content.innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+        showResults(results, true);
+    } finally {
+        hideLoading(loading);
+    }
+}
+</script>
+{% endblock %}

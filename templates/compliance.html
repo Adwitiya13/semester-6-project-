@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="compliance" class="page">
+    <div class="card">
+        <h1 class="card-title">📋 Compliance Assessment</h1>
+        <p style="color: #999; margin-bottom: 1.5rem;">OWASP Top 10 & Security Standards Compliance</p>
+        
+        <div class="form-group">
+            <label>Application/Website URL</label>
+            <input type="text" id="urlInput" placeholder="https://example.com">
+        </div>
+        
+        <div class="form-group">
+            <label>Assessment Type</label>
+            <select id="assessmentType" style="border: 1px solid #667eea; padding: 0.75rem; border-radius: 4px; width: 100%; background: #222; color: #fff;">
+                <option value="owasp">OWASP Top 10</option>
+                <option value="gdpr">GDPR Compliance</option>
+                <option value="pci">PCI DSS</option>
+                <option value="hipaa">HIPAA</option>
+            </select>
+        </div>
+        
+        <button onclick="assessCompliance()">Run Assessment</button>
+        
+        <div id="complianceLoading" class="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 1rem;">Running compliance assessment...</p>
+        </div>
+        
+        <div id="complianceResults" class="results">
+            <h3 style="color: #667eea; margin-bottom: 1rem;">Compliance Assessment Results</h3>
+            <div id="complianceContent"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function assessCompliance() {
+    const url = document.getElementById('urlInput').value;
+    const type = document.getElementById('assessmentType').value;
+    
+    if (!url.trim()) {
+        alert('Please enter a URL');
+        return;
+    }
+    
+    const loading = document.getElementById('complianceLoading');
+    const results = document.getElementById('complianceResults');
+    const content = document.getElementById('complianceContent');
+    
+    showLoading(loading);
+    showResults(results, false);
+    
+    try {
+        const response = await fetch('/api/compliance-assessment', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                url: url,
+                assessment_type: type
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            const compliance = data.data;
+            
+            // Calculate overall score
+            let passedCount = 0;
+            for (let key in compliance.items) {
+                if (compliance.items[key].status === 'PASS') passedCount++;
+            }
+            const score = ((passedCount / Object.keys(compliance.items).length) * 100).toFixed(0);
+            
+            // Determine score color
+            let scoreColor = '#27ae60';
+            if (score < 50) scoreColor = '#e74c3c';
+            else if (score < 75) scoreColor = '#f39c12';
+            
+            let html = '';
+            html += '<div class="metric-card">';
+            html += '<div style="font-size: 2.5rem; font-weight: bold; color: ' + scoreColor + ';">' + score + '%</div>';
+            html += '<div style="font-size: 0.9rem; color: #999;">Compliance Score</div>';
+            html += '</div>';
+            
+            html += '<div class="result-item"><span class="result-label">Framework</span><span class="result-value">' + compliance.framework + '</span></div>';
+            html += '<div class="result-item"><span class="result-label">Assessment Date</span><span class="result-value">' + new Date().toLocaleDateString() + '</span></div>';
+            
+            html += '<div style="margin-top: 1.5rem;">';
+            html += '<div style="font-weight: bold; color: #667eea; margin-bottom: 1rem;">Assessment Items</div>';
+            
+            for (let item in compliance.items) {
+                const checks = compliance.items[item];
+                const statusColor = checks.status === 'PASS' ? '#27ae60' : '#e74c3c';
+                const statusIcon = checks.status === 'PASS' ? '✔' : '✗';
+                
+                html += '<div style="padding: 0.75rem; background: rgba(102, 126, 234, 0.05); border-radius: 4px; margin-bottom: 0.75rem; border-left: 3px solid ' + statusColor + ';">';
+                html += '<div style="display: flex; justify-content: space-between; align-items: center;">';
+                html += '<div style="font-weight: bold; color: #fff;">' + item + '</div>';
+                html += '<span style="color: ' + statusColor + '; font-weight: bold; font-size: 1.2rem;">' + statusIcon + ' ' + checks.status + '</span>';
+                html += '</div>';
+                html += '<div style="color: #999; font-size: 0.85rem; margin-top: 0.5rem;">' + checks.details + '</div>';
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            
+            content.innerHTML = html;
+            showResults(results, true);
+        } else {
+            content.innerHTML = '<div class="alert alert-danger">Error: ' + data.message + '</div>';
+            showResults(results, true);
+        }
+    } catch (error) {
+        content.innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+        showResults(results, true);
+    } finally {
+        hideLoading(loading);
+    }
+}
+</script>
+{% endblock %}

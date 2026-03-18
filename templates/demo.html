@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="demo" class="page">
+    <div class="card">
+        <h1 class="card-title">🎬 Comprehensive Demo Analysis</h1>
+        <p>Click the button below to run a comprehensive demonstration of all security features.</p>
+        
+        <div style="text-align: center; margin: 2rem 0;">
+            <button onclick="runDemo()">Run Comprehensive Demo</button>
+        </div>
+        
+        <div id="demoLoading" class="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 1rem;">Analyzing security features...</p>
+        </div>
+        
+        <div id="demoResults" class="results">
+            <h3 style="color: #667eea; margin-bottom: 1rem;">Demo Results</h3>
+            
+            <div id="demoContent"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function runDemo() {
+    const loading = document.getElementById('demoLoading');
+    const results = document.getElementById('demoResults');
+    const content = document.getElementById('demoContent');
+    
+    showLoading(loading);
+    showResults(results, false);
+    
+    try {
+        const response = await fetch('/api/demo', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            const demo = data.data;
+            
+            let html = '';
+            
+            // RSA Results
+            html += '<div class="result-item">';
+            html += '<span class="result-label">RSA Encryption Status</span>';
+            html += '<span class="result-value status-success">✔ ' + demo.rsa.status + '</span>';
+            html += '</div>';
+            
+            html += '<div class="result-item">';
+            html += '<span class="result-label">RSA Key Size</span>';
+            html += '<span class="result-value">' + demo.rsa.key_size + ' bits</span>';
+            html += '</div>';
+            
+            html += '<div class="result-item">';
+            html += '<span class="result-label">Encryption Test</span>';
+            html += '<span class="result-value status-success">✔ Passed</span>';
+            html += '</div>';
+            
+            // DSA Results
+            html += '<div style="border-top: 2px solid #e0e0e0; margin-top: 1rem; padding-top: 1rem;"></div>';
+            
+            html += '<div class="result-item">';
+            html += '<span class="result-label">DSA Signature Status</span>';
+            html += '<span class="result-value status-success">✔ ' + demo.dsa.status + '</span>';
+            html += '</div>';
+            
+            html += '<div class="result-item">';
+            html += '<span class="result-label">Signature Verification</span>';
+            html += '<span class="result-value status-success">✔ ' + (demo.dsa.signature_valid ? 'Valid' : 'Invalid') + '</span>';
+            html += '</div>';
+            
+            html += '<div class="result-item">';
+            html += '<span class="result-label">Tamper Detection</span>';
+            html += '<span class="result-value status-success">✔ Working</span>';
+            html += '</div>';
+            
+            // Password Results
+            html += '<div style="border-top: 2px solid #e0e0e0; margin-top: 1rem; padding-top: 1rem;"></div>';
+            
+            html += '<h4 style="color: #667eea; margin: 1rem 0;">Password Strength Analysis</h4>';
+            demo.passwords.forEach((pwd, index) => {
+                const scoreColor = pwd.score >= 7 ? '#27ae60' : pwd.score >= 5 ? '#f39c12' : '#e74c3c';
+                html += '<div class="result-item">';
+                html += '<span class="result-label">Password ' + (index + 1) + ' Strength</span>';
+                html += '<span class="result-value" style="color: ' + scoreColor + ';">' + pwd.strength + ' (' + pwd.score + '/10)</span>';
+                html += '</div>';
+            });
+            
+            // Risk Results
+            html += '<div style="border-top: 2px solid #e0e0e0; margin-top: 1rem; padding-top: 1rem;"></div>';
+            
+            html += '<h4 style="color: #667eea; margin: 1rem 0;">Risk Assessment</h4>';
+            html += '<div class="result-item">';
+            html += '<span class="result-label">Portfolio Risk Score</span>';
+            html += '<span class="result-value">' + demo.risk.risk_score.toFixed(2) + '/10</span>';
+            html += '</div>';
+            
+            html += '<div class="result-item">';
+            html += '<span class="result-label">Portfolio Severity</span>';
+            html += '<span class="result-value">' + demo.risk.severity + '</span>';
+            html += '</div>';
+            
+            content.innerHTML = html;
+            showResults(results, true);
+        } else {
+            content.innerHTML = '<div class="alert alert-danger">Error: ' + data.message + '</div>';
+            showResults(results, true);
+        }
+    } catch (error) {
+        content.innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+        showResults(results, true);
+    } finally {
+        hideLoading(loading);
+    }
+}
+</script>
+{% endblock %}

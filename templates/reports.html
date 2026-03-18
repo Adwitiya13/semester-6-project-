@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="reports" class="page">
+    <div class="card">
+        <h1 class="card-title">📊 Reports & Export</h1>
+        <p style="color: #999; margin-bottom: 1.5rem;">Generate comprehensive security assessment reports</p>
+        
+        <div class="form-group">
+            <label>Report Configuration</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.75rem;">
+                <div>
+                    <label style="font-size: 0.85rem; color: #999;">Include Analysis Types</label>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+                        <label style="display: flex; align-items: center; color: #ddd; cursor: pointer;">
+                            <input type="checkbox" id="check-password" checked> Password Analysis
+                        </label>
+                        <label style="display: flex; align-items: center; color: #ddd; cursor: pointer;">
+                            <input type="checkbox" id="check-website" checked> Website Scan
+                        </label>
+                        <label style="display: flex; align-items: center; color: #ddd; cursor: pointer;">
+                            <input type="checkbox" id="check-crypto" checked> Crypto Assessment
+                        </label>
+                        <label style="display: flex; align-items: center; color: #ddd; cursor: pointer;">
+                            <input type="checkbox" id="check-risk" checked> Risk Analysis
+                        </label>
+                    </div>
+                </div>
+                
+                <div>
+                    <label style="font-size: 0.85rem; color: #999;">Export Format</label>
+                    <select id="exportFormat" style="border: 1px solid #667eea; padding: 0.75rem; border-radius: 4px; width: 100%; background: #222; color: #fff; margin-top: 0.5rem;">
+                        <option value="html">HTML Report</option>
+                        <option value="json">JSON Data</option>
+                        <option value="csv">CSV Export</option>
+                        <option value="pdf">PDF Report (Beta)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+            <button onclick="generateReport()">Generate Report</button>
+            <button onclick="downloadReport()" style="background: #27ae60;">Download Report</button>
+        </div>
+        
+        <div id="reportLoading" class="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 1rem;">Generating report...</p>
+        </div>
+        
+        <div id="reportResults" class="results">
+            <h3 style="color: #667eea; margin-bottom: 1rem;">Report Preview</h3>
+            <div id="reportContent"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+let generatedReport = null;
+
+async function generateReport() {
+    const format = document.getElementById('exportFormat').value;
+    const includePassword = document.getElementById('check-password').checked;
+    const includeWebsite = document.getElementById('check-website').checked;
+    const includeCrypto = document.getElementById('check-crypto').checked;
+    const includeRisk = document.getElementById('check-risk').checked;
+    
+    const loading = document.getElementById('reportLoading');
+    const results = document.getElementById('reportResults');
+    const content = document.getElementById('reportContent');
+    
+    showLoading(loading);
+    showResults(results, false);
+    
+    try {
+        // Collect all available data by running the demo
+        const response = await fetch('/api/demo', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                include_password: includePassword,
+                include_website: includeWebsite,
+                include_crypto: includeCrypto,
+                include_risk: includeRisk
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            generatedReport = data.data;
+            
+            let html = '';
+            html += '<div style="padding: 1.5rem; background: #282c34; border-radius: 4px; border: 1px solid #444;">';
+            html += '<div style="font-size: 1.1rem; font-weight: bold; color: #667eea; margin-bottom: 1rem;">Security Assessment Report</div>';
+            html += '<div style="color: #999; font-size: 0.9rem; margin-bottom: 2rem;">Generated: ' + new Date().toLocaleString() + '</div>';
+            
+            let sections = [];
+            if (includePassword && generatedReport.password_demo) {
+                sections.push({
+                    title: '🔐 Password Analysis',
+                    data: generatedReport.password_demo
+                });
+            }
+            if (includeWebsite && generatedReport.website_demo) {
+                sections.push({
+                    title: '🌐 Website Analysis',
+                    data: generatedReport.website_demo
+                });
+            }
+            if (includeCrypto) {
+                sections.push({
+                    title: '🔑 Cryptography Assessment',
+                    data: {rsa: generatedReport.rsa_demo, dsa: generatedReport.dsa_demo}
+                });
+            }
+            if (includeRisk && generatedReport.risk_demo) {
+                sections.push({
+                    title: '⚠️ Risk Assessment',
+                    data: generatedReport.risk_demo
+                });
+            }
+            
+            for (let section of sections) {
+                html += '<div style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(102, 126, 234, 0.05); border-radius: 4px;">';
+                html += '<div style="font-weight: bold; color: #667eea; margin-bottom: 0.75rem;">' + section.title + '</div>';
+                html += '<pre style="overflow-x: auto; color: #ccc; font-size: 0.85rem; margin: 0;">' + JSON.stringify(section.data, null, 2).substring(0, 500) + '...</pre>';
+                html += '</div>';
+            }
+            
+            html += '<div style="margin-top: 1.5rem; padding: 1rem; background: rgba(52, 152, 219, 0.1); border-radius: 4px; border-left: 3px solid #3498db;">';
+            html += '<div style="color: #3498db; font-weight: bold;">Report Summary</div>';
+            html += '<div style="color: #ccc; font-size: 0.9rem; margin-top: 0.5rem;">This report contains comprehensive security assessment data across ' + sections.length + ' categories. Export options available below.</div>';
+            html += '</div>';
+            
+            html += '</div>';
+            
+            content.innerHTML = html;
+            showResults(results, true);
+        } else {
+            content.innerHTML = '<div class="alert alert-danger">Error: ' + data.message + '</div>';
+            showResults(results, true);
+        }
+    } catch (error) {
+        content.innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+        showResults(results, true);
+    } finally {
+        hideLoading(loading);
+    }
+}
+
+function downloadReport() {
+    if (!generatedReport) {
+        alert('Please generate a report first');
+        return;
+    }
+    
+    const format = document.getElementById('exportFormat').value;
+    let content = '';
+    let filename = 'security-report-' + new Date().getTime();
+    
+    if (format === 'json') {
+        content = JSON.stringify(generatedReport, null, 2);
+        filename += '.json';
+    } else if (format === 'csv') {
+        content = 'Security Assessment Report\n';
+        content += 'Generated: ' + new Date().toLocaleString() + '\n\n';
+        content += JSON.stringify(generatedReport);
+        filename += '.csv';
+    } else {
+        content = '<html><head><title>Security Report</title><style>body{font-family:Arial;background:#1a1a1a;color:#fff;padding:20px}h1{color:#667eea}pre{background:#282c34;padding:10px;border-radius:4px}table{width:100%;border-collapse:collapse}td{border:1px solid #444;padding:8px}</style></head><body>';
+        content += '<h1>Security Assessment Report</h1>';
+        content += '<p>Generated: ' + new Date().toLocaleString() + '</p>';
+        content += '<pre>' + JSON.stringify(generatedReport, null, 2) + '</pre>';
+        content += '</body></html>';
+        filename += '.html';
+    }
+    
+    const blob = new Blob([content], {type: 'text/plain'});
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+}
+</script>
+{% endblock %}

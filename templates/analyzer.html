@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="analyzer" class="page">
+    <div class="card">
+        <h1 class="card-title">🌐 Website Security Analyzer</h1>
+        
+        <div class="form-group">
+            <label>Enter Website URL</label>
+            <input type="text" id="urlInput" placeholder="https://example.com">
+        </div>
+        
+        <button onclick="analyzeWebsite()">Analyze Website</button>
+        
+        <div id="analyzerLoading" class="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 1rem;">Analyzing website security...</p>
+        </div>
+        
+        <div id="analyzerResults" class="results">
+            <h3 style="color: #667eea; margin-bottom: 1rem;">Analysis Results</h3>
+            <div id="analyzerContent"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function analyzeWebsite() {
+    const url = document.getElementById('urlInput').value;
+    
+    if (!url) {
+        alert('Please enter a website URL');
+        return;
+    }
+    
+    const loading = document.getElementById('analyzerLoading');
+    const results = document.getElementById('analyzerResults');
+    const content = document.getElementById('analyzerContent');
+    
+    showLoading(loading);
+    showResults(results, false);
+    
+    try {
+        const response = await fetch('/api/analyze-website', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({url: url})
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            const analysis = data.data;
+            
+            let html = '';
+            html += '<div class="result-item">';
+            html += '<span class="result-label">Target URL</span>';
+            html += '<span class="result-value">' + analysis.url + '</span>';
+            html += '</div>';
+            
+            html += '<div class="result-item">';
+            html += '<span class="result-label">SSL/TLS Status</span>';
+            const sslStatus = analysis.ssl_tls.is_https ? '<span class="status-success">✔ Secure</span>' : '<span class="status-danger">✗ Insecure</span>';
+            html += '<span class="result-value">' + sslStatus + '</span>';
+            html += '</div>';
+            
+            html += '<div class="result-item">';
+            html += '<span class="result-label">Security Headers Score</span>';
+            html += '<span class="result-value">' + analysis.security_headers.score.toFixed(1) + '/100</span>';
+            html += '</div>';
+            
+            html += '<div class="result-item">';
+            html += '<span class="result-label">Missing Security Headers</span>';
+            html += '<span class="result-value">' + analysis.security_headers.missing + '</span>';
+            html += '</div>';
+            
+            html += '<div class="result-item">';
+            html += '<span class="result-label">XSS Vulnerabilities Found</span>';
+            const xssStatus = analysis.xss_vulnerabilities > 0 ? '<span class="status-danger">' + analysis.xss_vulnerabilities + '</span>' : '<span class="status-success">✔ None</span>';
+            html += '<span class="result-value">' + xssStatus + '</span>';
+            html += '</div>';
+            
+            html += '<div class="result-item">';
+            html += '<span class="result-label">Forms Found</span>';
+            html += '<span class="result-value">' + analysis.forms_found + '</span>';
+            html += '</div>';
+            
+            html += '<div class="result-item">';
+            html += '<span class="result-label">HTML Comments Found</span>';
+            html += '<span class="result-value">' + analysis.comments_found + '</span>';
+            html += '</div>';
+            
+            content.innerHTML = html;
+            showResults(results, true);
+        } else {
+            content.innerHTML = '<div class="alert alert-danger">Error: ' + data.message + '</div>';
+            showResults(results, true);
+        }
+    } catch (error) {
+        content.innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+        showResults(results, true);
+    } finally {
+        hideLoading(loading);
+    }
+}
+</script>
+{% endblock %}

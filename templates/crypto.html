@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="crypto" class="page">
+    <div class="card">
+        <h1 class="card-title">🔐 Cryptography Toolkit</h1>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+            <div>
+                <h3 style="color: #667eea;">RSA Encryption</h3>
+                <p>Asymmetric encryption with 2048-bit keys</p>
+                
+                <div class="form-group">
+                    <label>Message (Number)</label>
+                    <input type="number" id="rsaMessage" value="123456789">
+                </div>
+                
+                <button onclick="testRSA()">Encrypt & Decrypt</button>
+                
+                <div id="rsaLoading" class="loading">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+            
+            <div>
+                <h3 style="color: #667eea;">DSA Signatures</h3>
+                <p>Digital signatures with SHA-256 hashing</p>
+                
+                <div class="form-group">
+                    <label>Message to Sign</label>
+                    <input type="text" id="dsaMessage" value="Digital Security Document">
+                </div>
+                
+                <button onclick="testDSA()">Generate & Verify</button>
+                
+                <div id="dsaLoading" class="loading">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="cryptoResults" class="results">
+            <div id="cryptoContent"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function testRSA() {
+    const message = document.getElementById('rsaMessage').value;
+    const loading = document.getElementById('rsaLoading');
+    const results = document.getElementById('cryptoResults');
+    const content = document.getElementById('cryptoContent');
+    
+    showLoading(loading);
+    showResults(results, false);
+    
+    try {
+        const response = await fetch('/api/rsa-encrypt', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({message: parseInt(message)})
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            const rsa = data.data;
+            
+            let html = '<h3 style="color: #667eea; margin-bottom: 1rem;">RSA Encryption Results</h3>';
+            html += '<div class="result-item"><span class="result-label">Algorithm</span><span class="result-value">' + rsa.algorithm + '</span></div>';
+            html += '<div class="result-item"><span class="result-label">Key Size</span><span class="result-value">' + rsa.key_size + ' bits</span></div>';
+            html += '<div class="result-item"><span class="result-label">Original Message</span><span class="result-value">' + rsa.message + '</span></div>';
+            html += '<div class="result-item"><span class="result-label">Encrypted (First 50 chars)</span><span class="result-value">' + rsa.encrypted.substring(0, 50) + '...</span></div>';
+            html += '<div class="result-item"><span class="result-label">Decrypted</span><span class="result-value">' + rsa.decrypted + '</span></div>';
+            html += '<div class="result-item"><span class="result-label">Encryption Success</span><span class="result-value status-success">✔ ' + (rsa.success ? 'Yes' : 'No') + '</span></div>';
+            html += '<div class="result-item"><span class="result-label">Key Strength</span><span class="result-value status-success">' + rsa.status + '</span></div>';
+            
+            content.innerHTML = html;
+            showResults(results, true);
+        } else {
+            content.innerHTML = '<div class="alert alert-danger">Error: ' + data.message + '</div>';
+            showResults(results, true);
+        }
+    } catch (error) {
+        content.innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+        showResults(results, true);
+    } finally {
+        hideLoading(loading);
+    }
+}
+
+async function testDSA() {
+    const message = document.getElementById('dsaMessage').value;
+    const loading = document.getElementById('dsaLoading');
+    const results = document.getElementById('cryptoResults');
+    const content = document.getElementById('cryptoContent');
+    
+    showLoading(loading);
+    showResults(results, false);
+    
+    try {
+        const response = await fetch('/api/dsa-sign', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({message: message})
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            const dsa = data.data;
+            
+            let html = '<h3 style="color: #667eea; margin-bottom: 1rem;">DSA Signature Results</h3>';
+            html += '<div class="result-item"><span class="result-label">Algorithm</span><span class="result-value">' + dsa.algorithm + '</span></div>';
+            html += '<div class="result-item"><span class="result-label">Key Size</span><span class="result-value">' + dsa.key_size + ' bits</span></div>';
+            html += '<div class="result-item"><span class="result-label">Hash Algorithm</span><span class="result-value">' + dsa.hash + '</span></div>';
+            html += '<div class="result-item"><span class="result-label">Message</span><span class="result-value">' + dsa.message + '</span></div>';
+            html += '<div class="result-item"><span class="result-label">Signature (r)</span><span class="result-value" style="font-size: 0.9em;">' + dsa.signature_r.substring(0, 30) + '...</span></div>';
+            html += '<div class="result-item"><span class="result-label">Signature (s)</span><span class="result-value" style="font-size: 0.9em;">' + dsa.signature_s.substring(0, 30) + '...</span></div>';
+            html += '<div class="result-item"><span class="result-label">Signature Verification</span><span class="result-value status-success">✔ ' + (dsa.signature_valid ? 'Valid' : 'Invalid') + '</span></div>';
+            html += '<div class="result-item"><span class="result-label">Tamper Detection</span><span class="result-value status-success">✔ ' + (dsa.tamper_detection ? 'Working' : 'Failed') + '</span></div>';
+            html += '<div class="result-item"><span class="result-label">Status</span><span class="result-value status-success">' + dsa.status + '</span></div>';
+            
+            content.innerHTML = html;
+            showResults(results, true);
+        } else {
+            content.innerHTML = '<div class="alert alert-danger">Error: ' + data.message + '</div>';
+            showResults(results, true);
+        }
+    } catch (error) {
+        content.innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+        showResults(results, true);
+    } finally {
+        hideLoading(loading);
+    }
+}
+</script>
+{% endblock %}

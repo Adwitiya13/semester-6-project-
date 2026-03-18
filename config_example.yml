@@ -1,0 +1,234 @@
+# Configuration file for Website Vulnerability Analyzer
+# Place this file in the same directory as Website_Analyzer_Advanced.py
+# Usage: python Website_Analyzer_Advanced.py https://example.com --config config.yml
+
+# ============================================================================
+# BASIC SECURITY CHECKS
+# ============================================================================
+
+# Enable/disable form vulnerability analysis
+forms: true
+
+# Enable/disable HTML comment inspection
+comments: true
+
+# Enable/disable password field detection
+passwords: true
+
+# ============================================================================
+# ENCRYPTION & CRYPTOGRAPHY
+# ============================================================================
+
+# Enable RSA encryption analysis
+analyze_rsa: true
+
+# Enable DSA signature analysis
+analyze_dsa: true
+
+# Minimum RSA key size (bits)
+min_rsa_key_size: 2048
+
+# ============================================================================
+# NETWORK & WEB SECURITY
+# ============================================================================
+
+# Verify SSL/TLS certificate
+verify_ssl: true
+
+# Check security headers
+check_headers: true
+
+# Detect XSS vulnerabilities
+detect_xss: true
+
+# Detect SQL injection patterns
+detect_sql_injection: true
+
+# Analyze CORS policies
+check_cors: true
+
+# Check authentication mechanisms
+check_auth: true
+
+# ============================================================================
+# PASSWORD SECURITY
+# ============================================================================
+
+# Minimum password entropy (bits)
+min_password_entropy: 50
+
+# Minimum password length
+min_password_length: 12
+
+# Check for common passwords
+check_dictionary: true
+
+# Check for sequential characters
+check_sequential: true
+
+# Check for repeated characters
+check_repeated: true
+
+# ============================================================================
+# FILE SECURITY
+# ============================================================================
+
+# Analyze file permissions
+check_file_permissions: true
+
+# Check for dangerous extensions
+check_extensions: true
+
+# Scan for sensitive data in files
+scan_sensitive_data: true
+
+# Maximum file size to analyze (bytes)
+max_file_size: 10485760  # 10MB
+
+# ============================================================================
+# RISK ASSESSMENT
+# ============================================================================
+
+# Enable CVSS v3.1 scoring
+enable_cvss: true
+
+# Enable portfolio risk assessment
+enable_portfolio_risk: true
+
+# Risk threshold for alerts
+critical_risk_threshold: 8.0
+high_risk_threshold: 6.0
+medium_risk_threshold: 4.0
+
+# ============================================================================
+# COMPLIANCE FRAMEWORKS
+# ============================================================================
+
+# Enable OWASP Top 10 assessment
+check_owasp: true
+
+# Enable NIST framework assessment
+check_nist: true
+
+# Enable ISO 27001 assessment
+check_iso27001: true
+
+# Enable PCI-DSS assessment
+check_pci_dss: true
+
+# ============================================================================
+# REPORTING
+# ============================================================================
+
+# Report format (text, html, json, csv)
+report_format: text
+
+# Include executive summary
+include_summary: true
+
+# Include detailed findings
+include_details: true
+
+# Include recommendations
+include_recommendations: true
+
+# Include compliance status
+include_compliance: true
+
+# Verbosity level (quiet, normal, verbose)
+verbosity: normal
+
+# ============================================================================
+# SECURE SHARING
+# ============================================================================
+
+# Enable OTP for report sharing
+enable_otp_sharing: true
+
+# OTP validity in minutes
+otp_validity_minutes: 15
+
+# Maximum OTP access attempts
+otp_max_attempts: 3
+
+# Report share validity in hours
+report_share_hours: 24
+
+# ============================================================================
+# TIMEOUT & PERFORMANCE
+# ============================================================================
+
+# Connection timeout (seconds)
+connection_timeout: 10
+
+# Read timeout (seconds)
+read_timeout: 30
+
+# Maximum threads for parallel analysis
+max_threads: 4
+
+# ============================================================================
+# LOGGING
+# ============================================================================
+
+# Enable detailed logging
+enable_logging: true
+
+# Log file path
+log_file: security_analysis.log
+
+# Log level (DEBUG, INFO, WARNING, ERROR)
+log_level: INFO
+
+# ============================================================================
+# ADVANCED OPTIONS
+# ============================================================================
+
+# Allow self-signed certificates
+allow_self_signed: false
+
+# Follow redirects
+follow_redirects: true
+
+# Maximum redirects to follow
+max_redirects: 5
+
+# User agent for requests
+user_agent: "Website Vulnerability Analyzer v2.0"
+
+# Custom headers for requests
+custom_headers:
+  Accept-Language: "en-US,en;q=0.9"
+  Accept-Encoding: "gzip, deflate"
+
+# ============================================================================
+# NOTIFICATIONS (Optional)
+# ============================================================================
+
+# Send email notifications
+send_email: false
+
+# Email settings
+email_server: "smtp.gmail.com"
+email_port: 587
+email_sender: "security@company.com"
+email_password: "app_password_here"
+email_recipients:
+  - "ciso@company.com"
+  - "security@company.com"
+
+# ============================================================================
+# EXAMPLE USAGE
+# ============================================================================
+
+# Using this config file:
+# 
+#   python Website_Analyzer_Advanced.py https://example.com --config config.yml
+#
+# This will:
+# 1. Load all settings from this file
+# 2. Analyze the target URL
+# 3. Perform all enabled security checks
+# 4. Generate report in specified format
+# 5. Send notifications if configured
+# 6. Display results based on verbosity setting

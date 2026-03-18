@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="risk" class="page">
+    <div class="card">
+        <h1 class="card-title">⚠️ Risk Assessment Engine</h1>
+        <p style="color: #999; margin-bottom: 1.5rem;">CVSS v3.1 Scoring & Risk Analysis</p>
+        
+        <div class="form-group">
+            <label>Vulnerability Target</label>
+            <input type="text" id="targetInput" placeholder="e.g., Example Website">
+        </div>
+        
+        <div class="form-group">
+            <label>Vulnerability Description</label>
+            <textarea id="vulnerabilityInput" placeholder="Describe the vulnerability..." style="border: 1px solid #667eea; padding: 0.75rem; border-radius: 4px; width: 100%; font-family: Arial; font-size: 0.9rem;"></textarea>
+        </div>
+        
+        <button onclick="assessRisk()">Calculate Risk Score</button>
+        
+        <div id="riskLoading" class="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 1rem;">Calculating risk assessment...</p>
+        </div>
+        
+        <div id="riskResults" class="results">
+            <h3 style="color: #667eea; margin-bottom: 1rem;">Risk Assessment Results</h3>
+            <div id="riskContent"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function assessRisk() {
+    const target = document.getElementById('targetInput').value;
+    const vulnerability = document.getElementById('vulnerabilityInput').value;
+    
+    if (!target.trim() || !vulnerability.trim()) {
+        alert('Please fill in all fields');
+        return;
+    }
+    
+    const loading = document.getElementById('riskLoading');
+    const results = document.getElementById('riskResults');
+    const content = document.getElementById('riskContent');
+    
+    showLoading(loading);
+    showResults(results, false);
+    
+    try {
+        const response = await fetch('/api/risk-assessment', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                target: target,
+                vulnerability: vulnerability
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            const risk = data.data;
+            
+            // Determine color based on score
+            let scoreColor = '#27ae60'; // success
+            if (risk.cvss_score >= 7) scoreColor = '#e74c3c'; // danger
+            else if (risk.cvss_score >= 4) scoreColor = '#f39c12'; // warning
+            
+            let html = '';
+            html += '<div class="metric-card">';
+            html += '<div style="font-size: 2.5rem; font-weight: bold; color: ' + scoreColor + ';">' + risk.cvss_score.toFixed(1) + '</div>';
+            html += '<div style="font-size: 0.9rem; color: #999;">CVSS v3.1 Score</div>';
+            html += '</div>';
+            
+            html += '<div class="result-item"><span class="result-label">Severity Rating</span><span class="result-value" style="color: ' + scoreColor + ';">' + risk.severity_rating + '</span></div>';
+            html += '<div class="result-item"><span class="result-label">Risk Level</span><span class="result-value">' + risk.risk_level + '</span></div>';
+            html += '<div class="result-item"><span class="result-label">Target</span><span class="result-value">' + risk.target + '</span></div>';
+            
+            html += '<div style="margin-top: 1.5rem; padding: 1rem; background: rgba(102, 126, 234, 0.1); border-radius: 4px; border-left: 3px solid #667eea;">';
+            html += '<div style="color: #667eea; font-weight: bold; margin-bottom: 0.5rem;">Recommendation</div>';
+            html += '<div style="color: #ccc; font-size: 0.9rem;">' + risk.recommendation + '</div>';
+            html += '</div>';
+            
+            html += '<div style="margin-top: 1rem; padding: 1rem; background: rgba(52, 152, 219, 0.1); border-radius: 4px; border-left: 3px solid #3498db;">';
+            html += '<div style="color: #3498db; font-weight: bold; margin-bottom: 0.5rem;">Mitigation Strategy</div>';
+            html += '<div style="color: #ccc; font-size: 0.9rem;">' + risk.mitigation + '</div>';
+            html += '</div>';
+            
+            content.innerHTML = html;
+            showResults(results, true);
+        } else {
+            content.innerHTML = '<div class="alert alert-danger">Error: ' + data.message + '</div>';
+            showResults(results, true);
+        }
+    } catch (error) {
+        content.innerHTML = '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+        showResults(results, true);
+    } finally {
+        hideLoading(loading);
+    }
+}
+</script>
+{% endblock %}
