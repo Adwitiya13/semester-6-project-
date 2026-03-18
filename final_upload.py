@@ -9,7 +9,9 @@ import requests
 from pathlib import Path
 
 def main():
-    token = "REDACTED"
+    token = os.getenv("GITHUB_TOKEN")
+    if not token:
+        raise ValueError("GITHUB_TOKEN environment variable is not set")
     REPO_OWNER = "Adwitiya13"
     REPO_NAME = "semester-6-project-"
     

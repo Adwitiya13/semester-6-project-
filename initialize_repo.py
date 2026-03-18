@@ -3,10 +3,13 @@
 Initialize empty GitHub repo by creating .gitkeep file first
 """
 
+import os
 import base64
 import requests
 
-token = "REDACTED"
+token = os.getenv("GITHUB_TOKEN")
+if not token:
+    raise ValueError("GITHUB_TOKEN environment variable is not set")
 REPO = "Adwitiya13/semester-6-project-"
 
 headers = {

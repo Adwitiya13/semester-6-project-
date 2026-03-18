@@ -1,7 +1,10 @@
+import os
 import requests
 import base64
 
-token = "REDACTED"
+token = os.getenv("GITHUB_TOKEN")
+if not token:
+    raise ValueError("GITHUB_TOKEN environment variable is not set")
 repo = "Adwitiya13/semester-6-project-"
 
 headers = {
