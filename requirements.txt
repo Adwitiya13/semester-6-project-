@@ -1,0 +1,6 @@
+Flask>=2.0
+gunicorn>=20.1
+requests>=2.25
+beautifulsoup4>=4.11
+validators>=0.20
+PyYAML>=6.0

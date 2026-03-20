@@ -393,6 +393,32 @@ Edit `config.yml` to customize:
 
 ---
 
+## 🚀 Deployment
+
+The project is ready to run locally or deploy to a cloud provider. It includes a production-ready `Dockerfile`, `Procfile`, and `requirements.txt`.
+
+### Run locally (recommended)
+```bash
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+python app.py
+```
+
+### Run with Docker
+```bash
+docker build -t web-vuln-analyzer .
+docker run -p 5000:5000 web-vuln-analyzer
+```
+
+### Deploy to a Platform (Render / Railway / Heroku)
+1. Push this repo to GitHub.
+2. Create a new service on Render/Railway/Heroku and connect it to the repo.
+3. Set the start command (if required): `gunicorn app:app --bind 0.0.0.0:$PORT`
+4. Ensure the environment variable `PORT` is set by the platform (default is 5000).
+
+---
+
 ## 🐛 Troubleshooting
 
 ### Issue: Port 5000 Already In Use

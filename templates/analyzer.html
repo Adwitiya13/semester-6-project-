@@ -51,8 +51,10 @@ async function analyzeWebsite() {
         
         if (data.status === 'success') {
             const analysis = data.data;
+            const fetchNote = analysis.fetch_error ? '<div class="alert alert-warning">This scan could not fetch the live page, so only URL-level checks are available.<br><small>' + analysis.fetch_error + '</small></div>' : '';
             
             let html = '';
+            html += fetchNote;
             html += '<div class="result-item">';
             html += '<span class="result-label">Target URL</span>';
             html += '<span class="result-value">' + analysis.url + '</span>';

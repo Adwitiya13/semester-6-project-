@@ -2,68 +2,88 @@
 
 {% block content %}
 <div id="home" class="page active">
-    <div class="card">
-        <h1 class="card-title">🔐 Website Vulnerability Analyzer v2.0</h1>
-        <p style="font-size: 1.1em; line-height: 1.8;">
-            Welcome to the comprehensive security assessment platform. This tool provides advanced 
-            security analysis including cryptography, password strength assessment, network security 
-            scanning, file analysis, risk scoring, and compliance framework validation.
+    <section class="hero">
+        <span class="pill">Live web app</span>
+        <h1 class="card-title" style="margin-top: 0.9rem;">Website Vulnerability Analyzer</h1>
+        <p class="section-note" style="font-size: 1.02rem; max-width: 900px;">
+            A public-ready security dashboard for website checks, password analysis, cryptography demos, file inspection, risk scoring, and compliance snapshots. The frontend is responsive and the backend is wired so each module returns usable results.
         </p>
-        
-        <div class="grid" style="margin-top: 2rem;">
-            <div class="metric-card">
-                <div style="font-size: 2em;">🚀</div>
-                <div class="metric-label">Advanced Cryptography</div>
-                <p style="margin-top: 0.5rem;">RSA & DSA implementations</p>
-            </div>
-            
-            <div class="metric-card">
-                <div style="font-size: 2em;">🔑</div>
-                <div class="metric-label">Password Strength</div>
-                <p style="margin-top: 0.5rem;">Entropy-based analysis</p>
-            </div>
-            
-            <div class="metric-card">
-                <div style="font-size: 2em;">🌐</div>
-                <div class="metric-label">Network Security</div>
-                <p style="margin-top: 0.5rem;">Web vulnerability scanning</p>
-            </div>
-            
-            <div class="metric-card">
-                <div style="font-size: 2em;">📊</div>
-                <div class="metric-label">Risk Scoring</div>
-                <p style="margin-top: 0.5rem;">CVSS v3.1 assessment</p>
-            </div>
-            
-            <div class="metric-card">
-                <div style="font-size: 2em;">✅</div>
-                <div class="metric-label">Compliance</div>
-                <p style="margin-top: 0.5rem;">OWASP, NIST, ISO27001, PCI-DSS</p>
-            </div>
-            
-            <div class="metric-card">
-                <div style="font-size: 2em;">🔒</div>
-                <div class="metric-label">File Analysis</div>
-                <p style="margin-top: 0.5rem;">Security assessment</p>
-            </div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.25rem;">
+            <a href="/demo" style="text-decoration: none;"><button>Run Demo</button></a>
+            <a href="/analyzer" style="text-decoration: none;"><button>Start Website Scan</button></a>
+            <a href="/reports" style="text-decoration: none;"><button style="background: linear-gradient(135deg, #34d399, #22c55e);">Open Reports</button></a>
         </div>
-        
-        <div style="margin-top: 2rem; padding: 1.5rem; background: #f0f4ff; border-radius: 8px;">
-            <h3 style="color: #667eea; margin-bottom: 1rem;">🎯 Get Started</h3>
-            <ol style="margin-left: 1.5rem; line-height: 2;">
-                <li>Try the <strong>Demo</strong> to see all features in action</li>
-                <li>Test <strong>Password</strong> strength analysis</li>
-                <li>Explore <strong>Crypto</strong> algorithms (RSA/DSA)</li>
-                <li>Analyze a <strong>Website</strong> for vulnerabilities</li>
-                <li>Check file <strong>Security</strong></li>
-                <li>Assess <strong>Risk</strong> and <strong>Compliance</strong></li>
+    </section>
+
+    <div class="grid" style="margin-top: 1.5rem;">
+        <div class="metric-card">
+            <div style="font-size: 2em;">🌐</div>
+            <div class="metric-label">Website Analyzer</div>
+            <p style="margin-top: 0.55rem;">HTTPS, headers, forms, and XSS checks.</p>
+        </div>
+
+        <div class="metric-card">
+            <div style="font-size: 2em;">🔑</div>
+            <div class="metric-label">Password Security</div>
+            <p style="margin-top: 0.55rem;">Strength, entropy, and generation tools.</p>
+        </div>
+
+        <div class="metric-card">
+            <div style="font-size: 2em;">🔐</div>
+            <div class="metric-label">Crypto Lab</div>
+            <p style="margin-top: 0.55rem;">RSA and DSA demos that execute live.</p>
+        </div>
+
+        <div class="metric-card">
+            <div style="font-size: 2em;">📁</div>
+            <div class="metric-label">File Safety</div>
+            <p style="margin-top: 0.55rem;">Extension, permissions, and hash review.</p>
+        </div>
+
+        <div class="metric-card">
+            <div style="font-size: 2em;">⚠️</div>
+            <div class="metric-label">Risk Scoring</div>
+            <p style="margin-top: 0.55rem;">Severity and mitigation guidance.</p>
+        </div>
+
+        <div class="metric-card">
+            <div style="font-size: 2em;">📋</div>
+            <div class="metric-label">Compliance</div>
+            <p style="margin-top: 0.55rem;">OWASP, GDPR, PCI DSS, and HIPAA views.</p>
+        </div>
+    </div>
+
+    <div class="grid" style="margin-top: 1.5rem;">
+        <div class="card">
+            <h2 style="margin-bottom: 0.85rem; color: var(--accent);">What works here</h2>
+            <ul style="line-height: 1.9; padding-left: 1.15rem; color: var(--text);">
+                <li>Server-side analysis with JSON APIs.</li>
+                <li>Responsive frontend pages for each tool.</li>
+                <li>Report preview and export flow.</li>
+                <li>Public-safe validation for URL analysis.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-bottom: 0.85rem; color: var(--accent);">How to use it</h2>
+            <ol style="line-height: 1.9; padding-left: 1.15rem; color: var(--text);">
+                <li>Open <strong>Demo</strong> for a quick end-to-end preview.</li>
+                <li>Use <strong>Website</strong> to scan a public HTTPS URL.</li>
+                <li>Try <strong>Password</strong>, <strong>Crypto</strong>, and <strong>File</strong> checks.</li>
+                <li>Generate a report from the <strong>Reports</strong> page.</li>
             </ol>
         </div>
-        
-        <div style="margin-top: 2rem; color: #666;">
-            <p><strong>⚠️ Important:</strong> This tool is for authorized security testing only. 
-            Unauthorized access to computer systems is illegal.</p>
-        </div>
+    </div>
+
+    <div class="card" style="margin-top: 1.5rem;">
+        <h2 style="margin-bottom: 0.85rem; color: var(--accent);">Deployment note</h2>
+        <p class="section-note">
+            The app is structured as a Flask site, so it can be hosted on platforms like Render, Railway, Fly.io, or any Python host that supports a `Procfile` and `gunicorn`.
+        </p>
+        <p class="section-note" style="margin-top: 0.65rem;">
+            For production, you can point a domain to the host, set `PORT` if needed, and the site will work directly from the public URL.
+        </p>
     </div>
 </div>
 {% endblock %}

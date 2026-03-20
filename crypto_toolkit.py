@@ -174,17 +174,18 @@ class DSA:
     
     def generate_keypair(self) -> Tuple[int, int, int, int, int]:
         """Generate DSA keys - Using pre-computed parameters for demo"""
-        # FIPS 186-4 style parameters (simplified for demonstration)
-        q = 887503081  # 32-bit prime divisor
-        p = 19928974294940973773  # 64-bit prime
-        
-        # Generator element
+        # Small, consistent demo parameters so sign/verify always work together.
+        # These are for educational use only, not production cryptography.
+        q = 1019
+        p = 2039  # p - 1 is divisible by q
+
+        # Generator element of order q modulo p.
         h = 2
         g = pow(h, (p - 1) // q, p)
-        
-        # Ensure g > 1
         if g <= 1:
             g = pow(3, (p - 1) // q, p)
+        if g <= 1:
+            g = 4
         
         # Generate keys
         private_key = random.randrange(1, q)
