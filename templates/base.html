@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Security Analyzer{% endblock %}</title>
     <style>
+        :root {
+            --bg-0: #07111f;
+            --bg-1: #0b1b2f;
+            --panel: rgba(10, 18, 32, 0.82);
+            --panel-strong: rgba(14, 26, 46, 0.95);
+            --border: rgba(155, 183, 222, 0.16);
+            --text: #e8f0ff;
+            --muted: #9ab0d0;
+            --accent: #7dd3fc;
+            --accent-2: #a78bfa;
+            --good: #4ade80;
+            --warn: #fbbf24;
+            --bad: #fb7185;
+            --shadow: 0 20px 60px rgba(0, 0, 0, 0.32);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,73 +28,110 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(125, 211, 252, 0.12), transparent 30%),
+                radial-gradient(circle at top right, rgba(167, 139, 250, 0.12), transparent 32%),
+                linear-gradient(160deg, var(--bg-0), var(--bg-1));
             min-height: 100vh;
-            color: #333;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 48px 48px;
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,0.35), rgba(0,0,0,0.05));
+            opacity: 0.5;
         }
         
         .navbar {
-            background-color: #2c3e50;
-            padding: 1rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            background: rgba(6, 13, 24, 0.78);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 1.25rem;
+            box-shadow: 0 2px 24px rgba(0,0,0,0.18);
             position: sticky;
             top: 0;
             z-index: 100;
         }
         
         .navbar-container {
-            max-width: 1200px;
+            max-width: 1240px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
         }
         
         .navbar-brand {
-            color: white;
-            font-size: 1.5em;
-            font-weight: bold;
+            color: var(--text);
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .navbar-brand::after {
+            content: " Live";
+            color: var(--accent);
+            font-weight: 700;
+         }
+
+        .navbar-tagline {
+            color: var(--muted);
+            font-size: 0.84rem;
+            margin-left: 0.5rem;
         }
         
         .navbar-menu {
             display: flex;
             gap: 1.5rem;
             list-style: none;
+            flex-wrap: wrap;
+            align-items: center;
         }
         
         .navbar-menu a {
-            color: white;
+            color: var(--text);
             text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            transition: all 0.3s ease;
+            padding: 0.5rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
         }
         
         .navbar-menu a:hover {
-            background-color: rgba(255,255,255,0.1);
-            transform: translateY(-2px);
+            background: rgba(125, 211, 252, 0.09);
+            border-color: rgba(125, 211, 252, 0.18);
+            transform: translateY(-1px);
         }
         
         .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 2rem 1rem 3rem;
+            position: relative;
+            z-index: 1;
         }
         
         .page {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        .page.active {
             display: block;
+            animation: fadeIn 0.45s ease;
         }
         
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(16px);
             }
             to {
                 opacity: 1;
@@ -87,19 +140,22 @@
         }
         
         .card {
-            background: white;
-            border-radius: 8px;
-            padding: 2rem;
+            background: linear-gradient(180deg, var(--panel), var(--panel-strong));
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.75rem;
             margin: 1rem 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
         }
         
         .card-title {
-            color: #667eea;
-            font-size: 1.8em;
+            color: var(--text);
+            font-size: clamp(1.6rem, 2vw, 2.2rem);
+            line-height: 1.15;
             margin-bottom: 1rem;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.85rem;
         }
         
         .form-group {
@@ -110,7 +166,7 @@
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 600;
-            color: #2c3e50;
+            color: var(--text);
         }
         
         input[type="text"],
@@ -120,36 +176,39 @@
         textarea,
         select {
             width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 4px;
+            padding: 0.85rem 0.95rem;
+            border: 1px solid rgba(154, 176, 208, 0.28);
+            background: rgba(8, 17, 31, 0.72);
+            color: var(--text);
+            border-radius: 14px;
             font-size: 1em;
-            transition: border-color 0.3s;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
         }
         
         input:focus,
         textarea:focus,
         select:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+            border-color: rgba(125, 211, 252, 0.6);
+            box-shadow: 0 0 0 4px rgba(125, 211, 252, 0.12);
         }
         
         button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
             color: white;
             padding: 0.75rem 1.5rem;
             border: none;
-            border-radius: 4px;
+            border-radius: 14px;
             font-size: 1em;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
         }
         
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 24px rgba(125, 211, 252, 0.18);
+            filter: saturate(1.05);
         }
         
         button:active {
@@ -157,10 +216,11 @@
         }
         
         .results {
-            background: #f8f9fa;
-            border-left: 4px solid #667eea;
-            padding: 1.5rem;
-            border-radius: 4px;
+            background: rgba(7, 17, 31, 0.72);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+            padding: 1.25rem;
+            border-radius: 18px;
             margin-top: 1.5rem;
             display: none;
         }
@@ -182,35 +242,38 @@
         }
         
         .result-item {
-            background: white;
-            padding: 1rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 0.95rem 1rem;
             margin: 0.5rem 0;
-            border-radius: 4px;
+            border-radius: 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 1rem;
         }
         
         .result-label {
             font-weight: 600;
-            color: #2c3e50;
+            color: var(--text);
         }
         
         .result-value {
-            color: #667eea;
+            color: #c9dbff;
             font-weight: 600;
+            text-align: right;
         }
         
         .status-success {
-            color: #27ae60;
+            color: var(--good);
         }
         
         .status-warning {
-            color: #f39c12;
+            color: var(--warn);
         }
         
         .status-danger {
-            color: #e74c3c;
+            color: var(--bad);
         }
         
         .loading {
@@ -224,8 +287,8 @@
         }
         
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            border: 4px solid rgba(255, 255, 255, 0.12);
+            border-top: 4px solid var(--accent);
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -245,11 +308,13 @@
         }
         
         .metric-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, rgba(125, 211, 252, 0.18), rgba(167, 139, 250, 0.18));
+            border: 1px solid rgba(255, 255, 255, 0.12);
             color: white;
             padding: 1.5rem;
-            border-radius: 8px;
+            border-radius: 18px;
             text-align: center;
+            box-shadow: var(--shadow);
         }
         
         .metric-number {
@@ -265,34 +330,114 @@
         
         .alert {
             padding: 1rem;
-            border-radius: 4px;
+            border-radius: 14px;
             margin: 1rem 0;
         }
         
         .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+            background-color: rgba(74, 222, 128, 0.12);
+            color: #dcfce7;
+            border: 1px solid rgba(74, 222, 128, 0.18);
         }
         
         .alert-danger {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            background-color: rgba(251, 113, 133, 0.12);
+            color: #ffe4ea;
+            border: 1px solid rgba(251, 113, 133, 0.18);
         }
         
         .alert-warning {
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
+            background-color: rgba(251, 191, 36, 0.12);
+            color: #fff7d6;
+            border: 1px solid rgba(251, 191, 36, 0.18);
         }
         
         footer {
-            background-color: #2c3e50;
-            color: white;
+            background: rgba(6, 13, 24, 0.92);
+            color: var(--muted);
             text-align: center;
             padding: 2rem;
             margin-top: 3rem;
+            border-top: 1px solid var(--border);
+        }
+
+        code, pre {
+            color: #d5e7ff;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .section-note {
+            color: var(--muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, rgba(125, 211, 252, 0.12), rgba(167, 139, 250, 0.12));
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            border-radius: 999px;
+            padding: 0.35rem 0.7rem;
+            background: rgba(125, 211, 252, 0.12);
+            border: 1px solid rgba(125, 211, 252, 0.18);
+            color: #dff7ff;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 900px) {
+            .navbar-container {
+                align-items: flex-start;
+            }
+
+            .navbar-menu {
+                gap: 0.65rem;
+            }
+
+            .card {
+                padding: 1.25rem;
+                border-radius: 18px;
+            }
+
+            .result-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .result-value {
+                text-align: left;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem 0.75rem 2rem;
+            }
+
+            .navbar {
+                padding: 0.9rem 0.75rem;
+            }
+
+            .navbar-menu {
+                gap: 0.45rem;
+            }
+
+            .navbar-menu a {
+                padding: 0.45rem 0.7rem;
+                font-size: 0.92rem;
+            }
         }
     </style>
     {% block extra_css %}{% endblock %}
@@ -300,16 +445,16 @@
 <body>
     <nav class="navbar">
         <div class="navbar-container">
-            <div class="navbar-brand">🔐 Security Analyzer v2.0</div>
+            <div class="navbar-brand">🔐 Security Analyzer <span class="navbar-tagline">public web app</span></div>
             <ul class="navbar-menu">
-                <li><a href="#" onclick="showPage('home')">Home</a></li>
-                <li><a href="#" onclick="showPage('demo')">Demo</a></li>
-                <li><a href="#" onclick="showPage('analyzer')">Website</a></li>
-                <li><a href="#" onclick="showPage('password')">Password</a></li>
-                <li><a href="#" onclick="showPage('crypto')">Crypto</a></li>
-                <li><a href="#" onclick="showPage('file')">File</a></li>
-                <li><a href="#" onclick="showPage('risk')">Risk</a></li>
-                <li><a href="#" onclick="showPage('compliance')">Compliance</a></li>
+                <li><a href="/">Home</a></li>
+                <li><a href="/demo">Demo</a></li>
+                <li><a href="/analyzer">Website</a></li>
+                <li><a href="/password">Password</a></li>
+                <li><a href="/crypto">Crypto</a></li>
+                <li><a href="/file">File</a></li>
+                <li><a href="/risk">Risk</a></li>
+                <li><a href="/compliance">Compliance</a></li>
             </ul>
         </div>
     </nav>
@@ -319,25 +464,11 @@
     </div>
 
     <footer>
-        <p>&copy; 2026 Website Vulnerability Analyzer - Advanced Security Assessment Platform</p>
+        <p>&copy; 2026 Security Analyzer - Advanced Security Assessment Platform</p>
         <p>For authorized security testing only</p>
     </footer>
 
     <script>
-        function showPage(page) {
-            // Hide all pages
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            
-            // Show selected page
-            const element = document.getElementById(page);
-            if (element) {
-                element.classList.add('active');
-            }
-            
-            // Prevent default link behavior
-            event.preventDefault();
-        }
-        
         function showLoading(element) {
             element.classList.add('show');
         }
@@ -353,11 +484,6 @@
                 element.classList.remove('show');
             }
         }
-        
-        // Show home page by default
-        document.addEventListener('DOMContentLoaded', function() {
-            showPage('home');
-        });
     </script>
 
     {% block extra_js %}{% endblock %}

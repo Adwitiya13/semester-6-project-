@@ -66,13 +66,16 @@ async function assessCompliance() {
         
         if (data.status === 'success') {
             const compliance = data.data;
+            const fetchNote = compliance.fetch_error ? '<div class="alert alert-warning">The live site could not be fetched, so this compliance view is based on URL-level checks and any available metadata.<br><small>' + compliance.fetch_error + '</small></div>' : '';
             
             // Calculate overall score
             let passedCount = 0;
+            const totalItems = Object.keys(compliance.items || {}).length || 1;
             for (let key in compliance.items) {
                 if (compliance.items[key].status === 'PASS') passedCount++;
             }
-            const score = ((passedCount / Object.keys(compliance.items).length) * 100).toFixed(0);
+            const computedScore = ((passedCount / totalItems) * 100).toFixed(0);
+            const score = typeof compliance.score === 'number' ? compliance.score.toFixed(0) : computedScore;
             
             // Determine score color
             let scoreColor = '#27ae60';
@@ -80,12 +83,14 @@ async function assessCompliance() {
             else if (score < 75) scoreColor = '#f39c12';
             
             let html = '';
+            html += fetchNote;
             html += '<div class="metric-card">';
             html += '<div style="font-size: 2.5rem; font-weight: bold; color: ' + scoreColor + ';">' + score + '%</div>';
             html += '<div style="font-size: 0.9rem; color: #999;">Compliance Score</div>';
             html += '</div>';
             
             html += '<div class="result-item"><span class="result-label">Framework</span><span class="result-value">' + compliance.framework + '</span></div>';
+            html += '<div class="result-item"><span class="result-label">Status</span><span class="result-value">' + (compliance.status || 'Unknown') + '</span></div>';
             html += '<div class="result-item"><span class="result-label">Assessment Date</span><span class="result-value">' + new Date().toLocaleDateString() + '</span></div>';
             
             html += '<div style="margin-top: 1.5rem;">';
@@ -106,6 +111,17 @@ async function assessCompliance() {
             }
             
             html += '</div>';
+
+            if (compliance.recommendations && compliance.recommendations.length) {
+                html += '<div style="margin-top: 1.5rem; padding: 1rem; background: rgba(102, 126, 234, 0.08); border-radius: 4px;">';
+                html += '<div style="font-weight: bold; color: #667eea; margin-bottom: 0.75rem;">Recommendations</div>';
+                html += '<ul style="margin-left: 1.5rem;">';
+                compliance.recommendations.forEach(function(item) {
+                    html += '<li>' + item + '</li>';
+                });
+                html += '</ul>';
+                html += '</div>';
+            }
             
             content.innerHTML = html;
             showResults(results, true);

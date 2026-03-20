@@ -90,7 +90,27 @@ async function runDemo() {
                 html += '<span class="result-value" style="color: ' + scoreColor + ';">' + pwd.strength + ' (' + pwd.score + '/10)</span>';
                 html += '</div>';
             });
-            
+
+            // Website Results
+            html += '<div style="border-top: 2px solid #e0e0e0; margin-top: 1rem; padding-top: 1rem;"></div>';
+            html += '<h4 style="color: #667eea; margin: 1rem 0;">Website Security Snapshot</h4>';
+            html += '<div class="result-item">';
+            html += '<span class="result-label">Target URL</span>';
+            html += '<span class="result-value">' + demo.website.url + '</span>';
+            html += '</div>';
+            html += '<div class="result-item">';
+            html += '<span class="result-label">HTTPS Status</span>';
+            html += '<span class="result-value status-success">✔ ' + demo.website.ssl_tls.status + '</span>';
+            html += '</div>';
+            html += '<div class="result-item">';
+            html += '<span class="result-label">Security Headers Score</span>';
+            html += '<span class="result-value">' + demo.website.security_headers.score.toFixed(0) + '/100</span>';
+            html += '</div>';
+            html += '<div class="result-item">';
+            html += '<span class="result-label">XSS Findings</span>';
+            html += '<span class="result-value">' + demo.website.xss_vulnerabilities + '</span>';
+            html += '</div>';
+
             // Risk Results
             html += '<div style="border-top: 2px solid #e0e0e0; margin-top: 1rem; padding-top: 1rem;"></div>';
             

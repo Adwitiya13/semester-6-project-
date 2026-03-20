@@ -97,28 +97,34 @@ async function generateReport() {
             html += '<div style="color: #999; font-size: 0.9rem; margin-bottom: 2rem;">Generated: ' + new Date().toLocaleString() + '</div>';
             
             let sections = [];
-            if (includePassword && generatedReport.password_demo) {
+            const passwordData = generatedReport.passwords || generatedReport.password_demo;
+            const websiteData = generatedReport.website || generatedReport.website_demo;
+            const rsaData = generatedReport.rsa || generatedReport.rsa_demo;
+            const dsaData = generatedReport.dsa || generatedReport.dsa_demo;
+            const riskData = generatedReport.risk || generatedReport.risk_demo;
+
+            if (includePassword && passwordData) {
                 sections.push({
                     title: '🔐 Password Analysis',
-                    data: generatedReport.password_demo
+                    data: passwordData
                 });
             }
-            if (includeWebsite && generatedReport.website_demo) {
+            if (includeWebsite && websiteData) {
                 sections.push({
                     title: '🌐 Website Analysis',
-                    data: generatedReport.website_demo
+                    data: websiteData
                 });
             }
-            if (includeCrypto) {
+            if (includeCrypto && (rsaData || dsaData)) {
                 sections.push({
                     title: '🔑 Cryptography Assessment',
-                    data: {rsa: generatedReport.rsa_demo, dsa: generatedReport.dsa_demo}
+                    data: {rsa: rsaData, dsa: dsaData}
                 });
             }
-            if (includeRisk && generatedReport.risk_demo) {
+            if (includeRisk && riskData) {
                 sections.push({
                     title: '⚠️ Risk Assessment',
-                    data: generatedReport.risk_demo
+                    data: riskData
                 });
             }
             
@@ -177,7 +183,8 @@ function downloadReport() {
         filename += '.html';
     }
     
-    const blob = new Blob([content], {type: 'text/plain'});
+    const blobType = format === 'json' ? 'application/json' : (format === 'csv' ? 'text/csv' : 'text/html');
+    const blob = new Blob([content], {type: blobType});
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
