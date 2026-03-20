@@ -9,8 +9,10 @@ from werkzeug.utils import secure_filename
 import ipaddress
 import os
 import json
+import tempfile
 from datetime import datetime
 import io
+from pathlib import Path
 from urllib.parse import urlparse
 
 # Import security modules
@@ -24,9 +26,12 @@ from report_generator import SecurityReportGenerator
 from otp_sharing import OTPManager, SecureReportSharing
 
 # Initialize Flask app
-app = Flask(__name__)
+BASE_DIR = Path(__file__).resolve().parent
+UPLOAD_DIR = Path(os.environ.get('UPLOAD_FOLDER', Path(tempfile.gettempdir()) / 'security-analyzer-uploads'))
+
+app = Flask(__name__, template_folder=str(BASE_DIR / 'templates'))
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
-app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['UPLOAD_FOLDER'] = str(UPLOAD_DIR)
 
 # Add CORS headers manually
 @app.after_request
@@ -36,8 +41,9 @@ def add_cors_headers(response):
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
     return response
 
-# Create uploads folder if it doesn't exist
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+# Create a writable upload directory.
+# Serverless platforms such as Vercel only allow writes in temp storage.
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 # Initialize security modules
 password_analyzer = PasswordAnalyzer()
